@@ -8,6 +8,8 @@ public class Task{
 	
 	String name;
 	
+	String type;
+	
 	int totalExecTime;
 	
 	int absDeadline;
@@ -23,6 +25,7 @@ public class Task{
 	public Task(String name, int arrivalTime, int execTime, int deadline, int period)
 	{
 		this.name = name;
+		this.type = name;
 		this.state = State.NEW;
 		this.arrivalTime = arrivalTime;
 		this.totalExecTime = execTime;
@@ -34,6 +37,7 @@ public class Task{
 	public Task(Task copy)
 	{
 		this.name = copy.name;
+		this.type = copy.type;
 		this.state = copy.state;
 		this.arrivalTime = copy.arrivalTime;
 		this.totalExecTime = copy.totalExecTime;
@@ -118,6 +122,11 @@ public class Task{
 	public String getName()
 	{
 		return name;
+	}
+	
+	public String getType()
+	{
+		return type;
 	}
 	
 	public int getPeriod()

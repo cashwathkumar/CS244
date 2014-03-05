@@ -2,13 +2,17 @@ package scheduler;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Set;
 
 public class EDFPeriodic {
 
 	private LinkedList<Task> taskSet;
 	
 	private LinkedList<Task> readyQueue;
+	
+	private HashMap<String, Integer> missedDeadlineMap = new HashMap<String, Integer>();
 	
 	Task currentTask;
 	
@@ -50,13 +54,11 @@ public class EDFPeriodic {
 				else
 					nextArrTime = currentTaskEndTime;
 				
-				if(nextArrTime < currentTaskEndTime)
-					execTime = nextArrTime - currentTime;
-				else
-					execTime = currentTaskRemTime;
+				execTime = minimum(nextArrTime, currentTaskEndTime, currentTask.getDeadline()) - currentTime;
 				
 				execTask(execTime);
 				
+				/* update the remaining time for the task, this also sets the task state to finished if it runs to completion*/
 				currentTaskRemTime -= execTime;
 				currentTask.setRemainingTime(currentTaskRemTime);
 				
@@ -68,6 +70,23 @@ public class EDFPeriodic {
 						currentTime = nextArrTime;
 					currentTask = null;
 				}
+				else
+				{
+					/*check if deadline is missed*/
+					if(currentTask.getDeadline() == currentTime)
+					{
+						System.out.println(currentTime + " " + currentTask.getName() + " deadline missed");
+						
+						String currentTaskType = currentTask.getType();
+						/*record missed deadline*/
+						if(missedDeadlineMap.containsKey(currentTaskType))
+							missedDeadlineMap.put(currentTaskType, missedDeadlineMap.get(currentTaskType) + 1);
+						else
+							missedDeadlineMap.put(currentTaskType, 1);
+						/*stop further execution of current task*/
+						currentTask = null;
+					}
+				}
 				updateReadyQueue();
 			}while(!taskSet.isEmpty() || !readyQueue.isEmpty());
 		}
@@ -75,6 +94,34 @@ public class EDFPeriodic {
 		{
 			/* Empty task set do nothing*/
 		}
+		
+		/* print missed deadlines*/
+		if(missedDeadlineMap.isEmpty())
+			System.out.println("No deadlines missed");
+		else
+		{
+			Set<String> s = missedDeadlineMap.keySet();
+			
+			System.out.println("Missed deadlines");
+			
+			for(String taskName : s)
+				System.out.println(taskName + ": " + missedDeadlineMap.get(taskName));	
+		}
+	}
+	
+	private int minimum(int x1, int x2, int x3)
+	{
+		int arr[] = {x1, x2, x3};
+		
+		int min = arr[0];
+		
+		for(int i = 0; i < arr.length; i++)
+		{
+			if(arr[i] < min)
+				min = arr[i];
+		}
+		
+		return min;
 	}
 	
 	private void updateReadyQueue()
@@ -145,7 +192,5 @@ public class EDFPeriodic {
 		}
 		
 		currentTime += execTime;
-		
-		//System.out.println(currentTime + " " + currentTask.getName());
 	}
 }
