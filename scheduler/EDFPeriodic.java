@@ -43,14 +43,15 @@ public class EDFPeriodic {
 				int nextArrTime;
 				int execTime;
 				int currentTaskRemTime = currentTask.getRemainingTime();
+				int currentTaskEndTime = currentTime + currentTaskRemTime;
 				
 				if(nextArrTask != null)
 					nextArrTime = nextArrTask.getArrivalTime();
 				else
-					nextArrTime = currentTaskRemTime;
+					nextArrTime = currentTaskEndTime;
 				
-				if(nextArrTime < currentTaskRemTime)
-					execTime = nextArrTime;
+				if(nextArrTime < currentTaskEndTime)
+					execTime = nextArrTime - currentTime;
 				else
 					execTime = currentTaskRemTime;
 				
@@ -59,6 +60,12 @@ public class EDFPeriodic {
 				currentTaskRemTime -= execTime;
 				currentTask.setRemainingTime(currentTaskRemTime);
 				
+				if(currentTask.isFinished())
+				{
+					if(readyQueue.isEmpty())
+						currentTime = nextArrTime;
+					currentTask = null;
+				}
 				updateReadyQueue();
 			}while(!taskSet.isEmpty() || !readyQueue.isEmpty());
 		}
@@ -72,14 +79,21 @@ public class EDFPeriodic {
 	{
 		if(!taskSet.isEmpty())
 		{	
-			while(taskSet.peek().getArrivalTime() == currentTime)
-				readyQueue.add(taskSet.poll());
+			while(!taskSet.isEmpty() && taskSet.peek().getArrivalTime() <= currentTime)
+				readyQueue.addLast(taskSet.poll());
 			
-			if(readyQueue.isEmpty())
+			if(currentTask != null)
 			{
-				/*no tasks available at currentTime*/
-				/*advance time*/
-				currentTime = taskSet.peek().getArrivalTime();	
+				/* current task not preempted*/
+				if(currentTask.getDeadline() < readyQueue.peek().getDeadline())
+				{
+					readyQueue.add(currentTask);
+				}
+				else
+				{
+					/*current task gets preempted, add to end of the queue*/
+					readyQueue.addLast(currentTask);
+				}
 			}
 			
 			Collections.sort(readyQueue, new Comparator<Task>(){

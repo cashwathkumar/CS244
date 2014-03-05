@@ -75,20 +75,28 @@ public class Scheduler {
 			
 			LinkedList<Task> tempTaskSet = new LinkedList<Task>();
 			
+			int firstArrivalTime = inputTaskSet.peek().getArrivalTime();
+			
 			for(int i = 0; i < inputTaskSet.size(); i++)
 			{
 				Task t = inputTaskSet.get(i);
 				int taskPeriod = t.getPeriod();
-				int arrivalTime = t.getArrivalTime();
-				int nextArrTime = arrivalTime;
+				int nextArrTime = t.getArrivalTime();
+				int nextDeadline = t.getDeadline();
+				int instance = 0;
 				
-				while(nextArrTime < hyperPeriod + arrivalTime)
+				while(nextArrTime < hyperPeriod + firstArrivalTime)
 				{
 					Task newInstance = new Task(t);
+					
+					newInstance.setName(t.getName() + " instance " + instance);
 					newInstance.setArrivalTime(nextArrTime);
+					newInstance.setDeadline(nextDeadline);
 					tempTaskSet.add(newInstance);
 					
 					nextArrTime += taskPeriod;
+					nextDeadline += taskPeriod;
+					instance++;
 				}
 			}
 			
@@ -115,17 +123,7 @@ public class Scheduler {
 			product *= periods[i];
 		}
 		
-		return product/gcd(periods);
-	}
-	
-	/* GCD of n numbers*/
-	private static int gcd(int[] numbers)
-	{
-	    int result = numbers[0];
-	    
-	    for(int i = 1; i < numbers.length; i++)
-	        result = gcd(result, numbers[i]);
-	    return result;
+		return lcmofarray(periods, 0, periods.length);
 	}
 	
 	/* GCD of two numbers*/
@@ -136,6 +134,18 @@ public class Scheduler {
 	        return number1;
 	    }
 	    return gcd(number2, number1%number2);
+	}
+	
+	/*lcm of 2 numbers*/
+	private static int lcm(int a, int b){
+	    return ((a*b)/gcd(a,b));
+
+	} 
+	
+	/*lcm of array of numbers*/
+	private static int lcmofarray(int[] arr, int start, int end){
+	    if ((end-start)==1) return lcm(arr[start],arr[end-1]);
+	    else return (lcm (arr[start], lcmofarray(arr, start+1, end)));
 	}
 	
 	private static void runScheduler()

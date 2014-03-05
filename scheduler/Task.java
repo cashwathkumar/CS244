@@ -42,6 +42,11 @@ public class Task{
 		this.period = copy.period;
 	}
 	
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+	
 	public void setReady()
 	{
 		state = State.READY;
@@ -82,6 +87,11 @@ public class Task{
 		return absDeadline;
 	}
 	
+	public void setDeadline(int deadline)
+	{
+		this.absDeadline = deadline;
+	}
+	
 	public int getExecutionTime()
 	{
 		return totalExecTime;
@@ -95,6 +105,9 @@ public class Task{
 	public void setRemainingTime(int rtime)
 	{
 		this.remainingTime = rtime;
+		
+		if(remainingTime == 0)
+			setFinished();
 	}
 	
 	public String getName()
@@ -110,5 +123,10 @@ public class Task{
 	public void setArrivalTime(int arrTime)
 	{
 		this.arrivalTime = arrTime;
+	}
+	
+	public String toString()
+	{
+		return name + "\narrivalTime: " + arrivalTime + "\nExecTime: " + totalExecTime + "\nDeadline: " + absDeadline + "\nPeriod" + period;
 	}
 }
