@@ -150,5 +150,11 @@ public class Scheduler {
 		EDFPeriodic sched = new EDFPeriodic(inputTaskSet);
 		sched.run();
 	}
+	
+	private static void runRMPeriodic()
+	{
+		RMPeriodic sched = new RMPeriodic(inputTaskSet);
+		sched.run();
+	}
 
 }
