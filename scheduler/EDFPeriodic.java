@@ -62,6 +62,8 @@ public class EDFPeriodic {
 				
 				if(currentTask.isFinished())
 				{
+					System.out.println(currentTime + " " + currentTask.getName() + " ending");
+					
 					if(readyQueue.isEmpty())
 						currentTime = nextArrTime;
 					currentTask = null;
@@ -77,37 +79,63 @@ public class EDFPeriodic {
 	
 	private void updateReadyQueue()
 	{
-		if(!taskSet.isEmpty())
-		{	
-			while(!taskSet.isEmpty() && taskSet.peek().getArrivalTime() <= currentTime)
-				readyQueue.addLast(taskSet.poll());
-			
-			if(currentTask != null)
+
+		while(!taskSet.isEmpty() && taskSet.peek().getArrivalTime() <= currentTime)
+			readyQueue.addLast(taskSet.poll());
+		
+		if(currentTask != null)
+		{
+			/* current task not preempted*/
+			if(currentTask.getDeadline() <= getMinDeadline(currentTask.getDeadline()))
 			{
-				/* current task not preempted*/
-				if(currentTask.getDeadline() < readyQueue.peek().getDeadline())
-				{
-					readyQueue.add(currentTask);
-				}
-				else
-				{
-					/*current task gets preempted, add to end of the queue*/
-					readyQueue.addLast(currentTask);
-				}
+				readyQueue.add(currentTask);
 			}
-			
-			Collections.sort(readyQueue, new Comparator<Task>(){
-				public int compare(Task t1, Task t2)
-				{
-					return t1.getDeadline() - t2.getDeadline();
-				}
-			});
+			else
+			{
+				/*current task gets preempted, add to end of the queue*/
+				System.out.println(currentTime + " " + currentTask.getName() + " gets preempted");
+				currentTask.setReady();
+				readyQueue.addLast(currentTask);
+			}
 		}
+		
+		Collections.sort(readyQueue, new Comparator<Task>(){
+			public int compare(Task t1, Task t2)
+			{
+				return t1.getDeadline() - t2.getDeadline();
+			}
+		});
+	}
+	
+	private int getMinDeadline(int deadline)
+	{
+		int minDeadline = deadline;
+		
+		for(Task t : readyQueue)
+		{
+			if(t.getDeadline() < minDeadline)
+				minDeadline = t.getDeadline();
+		}
+		
+		return minDeadline;
 	}
 	
 	private void execTask(int execTime)
 	{
-		System.out.println(currentTime + " " + currentTask.getName());
+		if(currentTask.isNew())
+		{
+			currentTask.setRunning();
+			System.out.println(currentTime + " " + currentTask.getName() + " starting");
+		}
+		else if(currentTask.isReady())
+		{
+			currentTask.setRunning();
+			System.out.println(currentTime + " " + currentTask.getName() + " resuming");
+		}
+		else
+		{
+			/*Task already running*/
+		}
 		
 		try {
 			Thread.sleep(execTime);
@@ -118,6 +146,6 @@ public class EDFPeriodic {
 		
 		currentTime += execTime;
 		
-		System.out.println(currentTime + " " + currentTask.getName());
+		//System.out.println(currentTime + " " + currentTask.getName());
 	}
 }

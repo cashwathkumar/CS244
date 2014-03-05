@@ -57,6 +57,11 @@ public class Task{
 		return state == State.READY;
 	}
 	
+	public boolean isNew()
+	{
+		return state == State.NEW;
+	}
+	
 	public void setRunning()
 	{
 		state = State.RUNNING;
