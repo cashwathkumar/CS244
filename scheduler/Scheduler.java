@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -28,22 +29,32 @@ public class Scheduler {
 			
 			String line = "";
 			
+			/*Skip first line*/
+			br.readLine();
+			
 			while((line = br.readLine()) != null)
 			{
 				/*split line on spaces*/
-				String[] tokens = line.split("[ ]+");
+				String[] tokens = line.split("[ \t]+");
 				
-				if(tokens.length != 5)
+				if(tokens.length < 5)
 					throw new IOException();
 				
-				String taskName = tokens[0];
+				int taskId = Integer.parseInt(tokens[0]);
 				
 				int arrivalTime = Integer.parseInt(tokens[1]);
 				int execTime = Integer.parseInt(tokens[2]);
 				int deadline = Integer.parseInt(tokens[3]);
 				int period = Integer.parseInt(tokens[4]);
 				
-				inputTaskSet.add(new Task(taskName, arrivalTime, execTime, deadline, period));
+				Task t = new Task(taskId, arrivalTime, execTime, deadline, period);
+				
+				inputTaskSet.add(t);
+				
+				/*get precedence*/
+				for(int i = 5; i < tokens.length; i++)
+					t.setPrecedence(Integer.parseInt(tokens[i]));
+					
 				
 				Collections.sort(inputTaskSet, new Comparator<Task>(){
 					public int compare(Task t1, Task t2)
@@ -150,9 +161,11 @@ public class Scheduler {
 	
 	private static void runScheduler()
 	{
-		runEDFPeriodic();
+		//runEDFPeriodic();
 		
 		//runRMPeriodic();
+		
+		runEDFAperiodic();
 	}
 	
 	private static void runEDFPeriodic()
@@ -161,9 +174,15 @@ public class Scheduler {
 		sched.run();
 	}
 	
-	private static void runRMPeriodic()
+//	private static void runRMPeriodic()
+//	{
+//		RMPeriodic sched = new RMPeriodic(inputTaskSet);
+//		sched.run();
+//	}
+	
+	private static void runEDFAperiodic()
 	{
-		RMPeriodic sched = new RMPeriodic(inputTaskSet);
+		EDFAperiodic sched = new EDFAperiodic(inputTaskSet);
 		sched.run();
 	}
 

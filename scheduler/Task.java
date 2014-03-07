@@ -1,14 +1,16 @@
 package scheduler;
 
+import java.util.ArrayList;
+
 public class Task{
 
 	public enum State {
 		NEW, READY, RUNNING, WAITING, FINISHED
 	}
 	
-	String name;
+	int Id;
 	
-	String type;
+	String name;
 	
 	int totalExecTime;
 	
@@ -22,10 +24,12 @@ public class Task{
 	
 	State state;
 	
-	public Task(String name, int arrivalTime, int execTime, int deadline, int period)
+	ArrayList<Integer> preList = new ArrayList<Integer>();
+	
+	public Task(int Id, int arrivalTime, int execTime, int deadline, int period)
 	{
-		this.name = name;
-		this.type = name;
+		this.Id = Id;
+		this.name = "Task"+Id;
 		this.state = State.NEW;
 		this.arrivalTime = arrivalTime;
 		this.totalExecTime = execTime;
@@ -36,8 +40,8 @@ public class Task{
 	
 	public Task(Task copy)
 	{
+		this.Id = copy.Id;
 		this.name = copy.name;
-		this.type = copy.type;
 		this.state = copy.state;
 		this.arrivalTime = copy.arrivalTime;
 		this.totalExecTime = copy.totalExecTime;
@@ -124,9 +128,9 @@ public class Task{
 		return name;
 	}
 	
-	public String getType()
+	public int getId()
 	{
-		return type;
+		return Id;
 	}
 	
 	public int getPeriod()
@@ -142,5 +146,15 @@ public class Task{
 	public String toString()
 	{
 		return name + "\narrivalTime: " + arrivalTime + "\nExecTime: " + totalExecTime + "\nDeadline: " + absDeadline + "\nPeriod" + period;
+	}
+	
+	public void setPrecedence(int taskId)
+	{
+		preList.add(taskId);
+	}
+	
+	public ArrayList<Integer> getPrecedenceSet()
+	{
+		return preList;
 	}
 }
