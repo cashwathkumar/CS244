@@ -13,6 +13,8 @@ public class Scheduler {
 
 	private static LinkedList<Task> inputTaskSet = new LinkedList<Task>();
 	
+	private static String inputFile = "TestSet1EDFP.txt";
+	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
@@ -25,7 +27,7 @@ public class Scheduler {
 	{	
 		try 
 		{
-			BufferedReader br = new BufferedReader(new FileReader("TaskSet1.txt"));
+			BufferedReader br = new BufferedReader(new FileReader(inputFile));
 			
 			String line = "";
 			
@@ -161,13 +163,15 @@ public class Scheduler {
 	
 	private static void runScheduler()
 	{
-		//runEDFPeriodic();
+		/* Enable one*/
+		
+		runEDFPeriodic();
 		
 		//runRMPeriodic();
 		
 		//runEDFAperiodic();
 		
-		runLDFAperiodic();
+		//runLDFAperiodic();
 	}
 	
 	private static void runEDFPeriodic()

@@ -1,0 +1,4 @@
+TaskId 		Arrival 	execTime 	deadline 	period 		precedence
+1 		 0 		   2 		4	   	4		
+2 		 0 		   2        	6      		6		
+3 		 0 		   2        	8      		8		
