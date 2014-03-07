@@ -1,3 +1,5 @@
+package scheduler;
+
 
 import java.awt.Adjustable;
 import java.util.ArrayList;
@@ -15,9 +17,9 @@ public class LDFAperiodic {
 	
 	private LinkedList<Task> readyQueue;
 	
-	private boolean[] completedTask;
+	private HashMap<Integer, Boolean> completedTask;
 	
-	private Task[] taskIdMap;
+	private HashMap<Integer, Task> taskIdMap;
 	
 	private Task currentTask;
 	
@@ -27,21 +29,26 @@ public class LDFAperiodic {
 	
 	public LDFAperiodic(LinkedList<Task> taskSet)
 	{
-		completedTask = new boolean[taskSet.size()];
+		completedTask = new HashMap<Integer, Boolean>();
 		
-		taskIdMap = new Task[taskSet.size()];
+		taskIdMap = new HashMap<Integer, Task>();
 		
 		this.waitQueue = taskSet;
+		
+		int maxId = 0;
 		
 		for(Task t : waitQueue)
 		{
 			t.setWaiting();
 			
-			completedTask[t.getTaskId()] = false;
-			taskIdMap[t.getTaskId()] = t;
+			completedTask.put(t.getTaskId(), false);
+			taskIdMap.put(t.getTaskId(), t);
+			
+			if(t.getTaskId() > maxId)
+				maxId = t.getTaskId();
 		}
 		
-		taskGraph = new Digraph(taskSet.size());
+		taskGraph = new Digraph(maxId);
 		
 		readyQueue = new LinkedList<Task>();
 		
@@ -73,7 +80,7 @@ public class LDFAperiodic {
 			{
 				System.out.println(currentTime + " " + currentTask.getName() + " ending");
 				
-				completedTask[currentTask.getTaskId()] = true; 
+				completedTask.put(currentTask.getTaskId(), true); 
 				currentTask = null;
 			}
 			else
@@ -142,7 +149,7 @@ public class LDFAperiodic {
 	{	
 		for(int i : t.getPrecedenceSet())
 		{
-			if(completedTask[i] == false)
+			if(completedTask.get(i) == false)
 				return false;
 		}
 		
@@ -171,7 +178,7 @@ public class LDFAperiodic {
 		
 		for(int id : taskGraph.adj(t.getTaskId()))
 		{
-			int effTaskDeadline = getEffectiveDeadline(taskIdMap[id]);
+			int effTaskDeadline = getEffectiveDeadline(taskIdMap.get(id));
 			
 			if(effTaskDeadline < minDeadline)
 				minDeadline = effTaskDeadline;

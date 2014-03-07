@@ -40,14 +40,14 @@ public class Scheduler {
 				if(tokens.length < 5)
 					throw new IOException();
 				
-				int taskType = Integer.parseInt(tokens[0]);
+				int taskId = Integer.parseInt(tokens[0]);
 				
 				int arrivalTime = Integer.parseInt(tokens[1]);
 				int execTime = Integer.parseInt(tokens[2]);
 				int deadline = Integer.parseInt(tokens[3]);
 				int period = Integer.parseInt(tokens[4]);
 				
-				Task t = new Task("Task" + taskType, arrivalTime, execTime, deadline, period);
+				Task t = new Task(taskId, arrivalTime, execTime, deadline, period);
 				
 				inputTaskSet.add(t);
 				
@@ -55,14 +55,14 @@ public class Scheduler {
 				for(int i = 5; i < tokens.length; i++)
 					t.setPrecedence(Integer.parseInt(tokens[i]));
 					
-				
-				Collections.sort(inputTaskSet, new Comparator<Task>(){
-					public int compare(Task t1, Task t2)
-					{
-						return t1.getArrivalTime() - t2.getArrivalTime();
-					}
-				});
 			}
+			
+			Collections.sort(inputTaskSet, new Comparator<Task>(){
+				public int compare(Task t1, Task t2)
+				{
+					return t1.getArrivalTime() - t2.getArrivalTime();
+				}
+			});
 			
 			br.close();
 		} 
@@ -165,7 +165,9 @@ public class Scheduler {
 		
 		//runRMPeriodic();
 		
-		runEDFAperiodic();
+		//runEDFAperiodic();
+		
+		runLDFAperiodic();
 	}
 	
 	private static void runEDFPeriodic()
@@ -183,6 +185,12 @@ public class Scheduler {
 	private static void runEDFAperiodic()
 	{
 		EDFAperiodic sched = new EDFAperiodic(inputTaskSet);
+		sched.run();
+	}
+	
+	private static void runLDFAperiodic()
+	{
+		LDFAperiodic sched = new LDFAperiodic(inputTaskSet);
 		sched.run();
 	}
 
