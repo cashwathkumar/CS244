@@ -8,9 +8,13 @@ public class Task{
 		NEW, READY, RUNNING, WAITING, FINISHED
 	}
 	
-	int Id;
+	static int Id = 0;
+	
+	int taskId;
 	
 	String name;
+	
+	String taskType;
 	
 	int totalExecTime;
 	
@@ -26,22 +30,25 @@ public class Task{
 	
 	ArrayList<Integer> preList = new ArrayList<Integer>();
 	
-	public Task(int Id, int arrivalTime, int execTime, int deadline, int period)
+	public Task(String taskType, int arrivalTime, int execTime, int deadline, int period)
 	{
-		this.Id = Id;
-		this.name = "Task"+Id;
+		this.taskType = taskType;
+		this.name = taskType;
 		this.state = State.NEW;
 		this.arrivalTime = arrivalTime;
 		this.totalExecTime = execTime;
 		this.absDeadline = deadline;
 		this.remainingTime = execTime;
 		this.period = period;
+		
+		this.taskId = Id++;
 	}
 	
 	public Task(Task copy)
 	{
-		this.Id = copy.Id;
+		this.taskId = copy.taskId;
 		this.name = copy.name;
+		this.taskType = copy.taskType;
 		this.state = copy.state;
 		this.arrivalTime = copy.arrivalTime;
 		this.totalExecTime = copy.totalExecTime;
@@ -128,9 +135,14 @@ public class Task{
 		return name;
 	}
 	
-	public int getId()
+	public String getTaskType()
 	{
-		return Id;
+		return taskType;
+	}
+	
+	public int getTaskId()
+	{
+		return taskId;
 	}
 	
 	public int getPeriod()

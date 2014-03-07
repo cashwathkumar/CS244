@@ -40,14 +40,14 @@ public class Scheduler {
 				if(tokens.length < 5)
 					throw new IOException();
 				
-				int taskId = Integer.parseInt(tokens[0]);
+				int taskType = Integer.parseInt(tokens[0]);
 				
 				int arrivalTime = Integer.parseInt(tokens[1]);
 				int execTime = Integer.parseInt(tokens[2]);
 				int deadline = Integer.parseInt(tokens[3]);
 				int period = Integer.parseInt(tokens[4]);
 				
-				Task t = new Task(taskId, arrivalTime, execTime, deadline, period);
+				Task t = new Task("Task" + taskType, arrivalTime, execTime, deadline, period);
 				
 				inputTaskSet.add(t);
 				

@@ -12,7 +12,7 @@ public class EDFPeriodic {
 	
 	private LinkedList<Task> readyQueue;
 	
-	private HashMap<Integer, Integer> missedDeadlineMap = new HashMap<Integer, Integer>();
+	private HashMap<String, Integer> missedDeadlineMap = new HashMap<String, Integer>();
 	
 	Task currentTask;
 	
@@ -77,12 +77,12 @@ public class EDFPeriodic {
 					{
 						System.out.println(currentTime + " " + currentTask.getName() + " deadline missed");
 						
-						int currentTaskId = currentTask.getId();
+						String currentTaskType = currentTask.getTaskType();
 						/*record missed deadline*/
-						if(missedDeadlineMap.containsKey(currentTaskId))
-							missedDeadlineMap.put(currentTaskId, missedDeadlineMap.get(currentTaskId) + 1);
+						if(missedDeadlineMap.containsKey(currentTaskType))
+							missedDeadlineMap.put(currentTaskType, missedDeadlineMap.get(currentTaskType) + 1);
 						else
-							missedDeadlineMap.put(currentTaskId, 1);
+							missedDeadlineMap.put(currentTaskType, 1);
 						/*stop further execution of current task*/
 						currentTask = null;
 					}
@@ -100,12 +100,12 @@ public class EDFPeriodic {
 			System.out.println("No deadlines missed");
 		else
 		{
-			Set<Integer> s = missedDeadlineMap.keySet();
+			Set<String> s = missedDeadlineMap.keySet();
 			
 			System.out.println("Missed deadlines");
 			
-			for(int taskId : s)
-				System.out.println("Task" + taskId + ": " + missedDeadlineMap.get(taskId));	
+			for(String taskType : s)
+				System.out.println(taskType + ": " + missedDeadlineMap.get(taskType));	
 		}
 	}
 	

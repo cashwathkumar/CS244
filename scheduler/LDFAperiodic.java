@@ -1,27 +1,35 @@
-package scheduler;
 
+import java.awt.Adjustable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.HashMap;
+
 import scheduler.Task;
 
 
-public class EDFAperiodic {
+public class LDFAperiodic {
 
 	private LinkedList<Task> waitQueue;
 	
 	private LinkedList<Task> readyQueue;
 	
-	private HashMap<Integer, Boolean> completedTask;
+	private boolean[] completedTask;
+	
+	private Task[] taskIdMap;
 	
 	private Task currentTask;
 	
 	private int currentTime;
 	
-	public EDFAperiodic(LinkedList<Task> taskSet)
+	private Digraph taskGraph;
+	
+	public LDFAperiodic(LinkedList<Task> taskSet)
 	{
-		completedTask = new HashMap<Integer, Boolean>();
+		completedTask = new boolean[taskSet.size()];
+		
+		taskIdMap = new Task[taskSet.size()];
 		
 		this.waitQueue = taskSet;
 		
@@ -29,9 +37,11 @@ public class EDFAperiodic {
 		{
 			t.setWaiting();
 			
-			completedTask.put(t.getTaskId(), false);
+			completedTask[t.getTaskId()] = false;
+			taskIdMap[t.getTaskId()] = t;
 		}
 		
+		taskGraph = new Digraph(taskSet.size());
 		
 		readyQueue = new LinkedList<Task>();
 		
@@ -40,6 +50,8 @@ public class EDFAperiodic {
 	
 	public void run()
 	{
+		constructTaskGraph();
+		
 		updateQueues();
 		
 		while(!readyQueue.isEmpty())
@@ -61,7 +73,7 @@ public class EDFAperiodic {
 			{
 				System.out.println(currentTime + " " + currentTask.getName() + " ending");
 				
-				completedTask.put(currentTask.getTaskId(), true); 
+				completedTask[currentTask.getTaskId()] = true; 
 				currentTask = null;
 			}
 			else
@@ -120,8 +132,8 @@ public class EDFAperiodic {
 		
 		Collections.sort(readyQueue, new Comparator<Task>(){
 			public int compare(Task t1, Task t2)
-			{
-				return t1.getDeadline() - t2.getDeadline();
+			{	
+				return getEffectiveDeadline(t1) - getEffectiveDeadline(t2);
 			}
 		});
 	}
@@ -130,10 +142,42 @@ public class EDFAperiodic {
 	{	
 		for(int i : t.getPrecedenceSet())
 		{
-			if(completedTask.get(i) == false)
+			if(completedTask[i] == false)
 				return false;
 		}
 		
 		return true;
 	}
+	
+	private void constructTaskGraph()
+	{
+		/* Construct the graph*/
+		for(Task t : waitQueue)
+		{
+			int taskId = t.getTaskId();
+			
+			ArrayList<Integer> precedenceSet = t.getPrecedenceSet();
+			
+			for(int pid : precedenceSet)
+			{
+				taskGraph.addEdge(pid, taskId);
+			}
+		}
+	}
+	
+	private int getEffectiveDeadline(Task t)
+	{
+		int minDeadline = t.getDeadline();
+		
+		for(int id : taskGraph.adj(t.getTaskId()))
+		{
+			int effTaskDeadline = getEffectiveDeadline(taskIdMap[id]);
+			
+			if(effTaskDeadline < minDeadline)
+				minDeadline = effTaskDeadline;
+		}
+		
+		return minDeadline;
+	}
 }
+
