@@ -70,6 +70,11 @@ public class Task{
 		return state == State.NEW;
 	}
 	
+	public boolean isWaiting()
+	{
+		return state == State.WAITING;
+	}
+	
 	public void setRunning()
 	{
 		state = State.RUNNING;
