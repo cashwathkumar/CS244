@@ -13,7 +13,7 @@ public class Scheduler {
 
 	private static LinkedList<Task> inputTaskSet = new LinkedList<Task>();
 	
-	private static String inputFile = "TestSet1EDFP.txt";
+	private static String inputFile = "TestSet4EDFP.txt";
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -165,9 +165,9 @@ public class Scheduler {
 	{
 		/* Enable one*/
 		
-		runEDFPeriodic();
+		//runEDFPeriodic();
 		
-		//runRMPeriodic();
+		runRMPeriodic();
 		
 		//runEDFAperiodic();
 		
@@ -176,24 +176,28 @@ public class Scheduler {
 	
 	private static void runEDFPeriodic()
 	{
+		System.out.println("Running EDF periodic");
 		EDFPeriodic sched = new EDFPeriodic(inputTaskSet);
 		sched.run();
 	}
 	
-//	private static void runRMPeriodic()
-//	{
-//		RMPeriodic sched = new RMPeriodic(inputTaskSet);
-//		sched.run();
-//	}
+	private static void runRMPeriodic()
+	{
+		System.out.println("Running RM periodic");
+		RMPeriodic sched = new RMPeriodic(inputTaskSet);
+		sched.run();
+	}
 	
 	private static void runEDFAperiodic()
 	{
+		System.out.println("Running EDF aperiodic");
 		EDFAperiodic sched = new EDFAperiodic(inputTaskSet);
 		sched.run();
 	}
 	
 	private static void runLDFAperiodic()
 	{
+		System.out.println("Running LDF aperiodic");
 		LDFAperiodic sched = new LDFAperiodic(inputTaskSet);
 		sched.run();
 	}
