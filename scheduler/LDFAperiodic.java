@@ -17,6 +17,8 @@ public class LDFAperiodic {
 	
 	private LinkedList<Task> readyQueue;
 	
+	private LinkedList<Task> taskSet;
+	
 	private HashMap<Integer, Boolean> completedTask;
 	
 	private HashMap<Integer, Task> taskIdMap;
@@ -31,16 +33,14 @@ public class LDFAperiodic {
 	{
 		completedTask = new HashMap<Integer, Boolean>();
 		
-		taskIdMap = new HashMap<Integer, Task>();
+		this.taskSet = taskSet;
 		
-		this.waitQueue = taskSet;
+		taskIdMap = new HashMap<Integer, Task>();
 		
 		int maxId = 0;
 		
-		for(Task t : waitQueue)
-		{
-			t.setWaiting();
-			
+		for(Task t : taskSet)
+		{	
 			completedTask.put(t.getTaskId(), false);
 			taskIdMap.put(t.getTaskId(), t);
 			
@@ -52,6 +52,8 @@ public class LDFAperiodic {
 		
 		readyQueue = new LinkedList<Task>();
 		
+		waitQueue = new LinkedList<Task>();
+		
 		currentTime = 0;
 	}
 	
@@ -61,15 +63,27 @@ public class LDFAperiodic {
 		
 		updateQueues();
 		
-		while(!readyQueue.isEmpty())
+		while(!readyQueue.isEmpty() || !taskSet.isEmpty())
 		{
-			
+			while(readyQueue.isEmpty())
+			{
+				/*Advance time until next task arrives*/
+				currentTime++;
+				updateQueues();
+			}
 			
 			currentTask = readyQueue.poll();
 			
 			int currentTaskRemTime = currentTask.getRemainingTime();
 			
-			int execTime = Math.min(currentTaskRemTime, currentTask.getDeadline() - currentTime);
+			int nextArrivalTime;
+			
+			if(taskSet.isEmpty())
+				nextArrivalTime = currentTask.getDeadline();
+			else
+				nextArrivalTime = taskSet.peek().getArrivalTime();
+			
+			int execTime = minimum(nextArrivalTime - currentTime, currentTaskRemTime, currentTask.getDeadline() - currentTime);
 			
 			execTask(execTime);
 			
@@ -85,25 +99,32 @@ public class LDFAperiodic {
 			}
 			else
 			{
-				/*check if deadline is missed*/
-				System.out.println(currentTime + " " + currentTask.getName() + " deadline missed");
-				
-				/*stop further execution of current task*/
-				currentTask = null;
+				if(currentTask.getDeadline() == currentTime)
+				{
+					/*check if deadline is missed*/
+					System.out.println(currentTime + " " + currentTask.getName() + " deadline missed");
+					
+					/*stop further execution of current task*/
+					currentTask = null;
+				}
 			}
 			
 			updateQueues();
-			
 		}
 		
 	}
 	
 	private void execTask(int execTime)
 	{
-		if(currentTask.isReady())
+		if(currentTask.isNew() || currentTask.isWaiting())
 		{
 			currentTask.setRunning();
 			System.out.println(currentTime + " " + currentTask.getName() + " starting");
+		}
+		else if(currentTask.isReady())
+		{
+			currentTask.setRunning();
+			System.out.println(currentTime + " " + currentTask.getName() + " resuming");
 		}
 		else
 		{
@@ -122,12 +143,24 @@ public class LDFAperiodic {
 	
 	private void updateQueues()
 	{
+		while(!taskSet.isEmpty() && taskSet.peek().getArrivalTime() <= currentTime)
+		{
+			if(isPreSatisfied(taskSet.peek()))
+			{
+				readyQueue.addLast(taskSet.poll());
+			}
+			else
+			{
+				Task t = taskSet.poll();
+				t.setWaiting();
+				waitQueue.addLast(t);
+			}
+		}
 
 		for(Task t : waitQueue)
 		{
 			if(isPreSatisfied(t))
 			{
-				t.setReady();
 				readyQueue.addLast(t);
 			}
 		}
@@ -135,6 +168,22 @@ public class LDFAperiodic {
 		for(Task t : readyQueue)
 		{
 			waitQueue.remove(t);
+		}
+		
+		if(currentTask != null)
+		{
+			/* current task not preempted*/
+			if(getEffectiveDeadline(currentTask) <= getMinDeadline(getEffectiveDeadline(currentTask)))
+			{
+				readyQueue.addFirst(currentTask);
+			}
+			else
+			{
+				/*current task gets preempted, add to end of the queue*/
+				System.out.println(currentTime + " " + currentTask.getName() + " gets preempted");
+				currentTask.setReady();
+				readyQueue.addLast(currentTask);
+			}
 		}
 		
 		Collections.sort(readyQueue, new Comparator<Task>(){
@@ -159,7 +208,7 @@ public class LDFAperiodic {
 	private void constructTaskGraph()
 	{
 		/* Construct the graph*/
-		for(Task t : waitQueue)
+		for(Task t : taskSet)
 		{
 			int taskId = t.getTaskId();
 			
@@ -185,6 +234,36 @@ public class LDFAperiodic {
 		}
 		
 		return minDeadline;
+	}
+	
+	private int getMinDeadline(int deadline)
+	{
+		int minDeadline = deadline;
+		
+		for(Task t : readyQueue)
+		{
+			int taskDeadline = getEffectiveDeadline(t);
+			
+			if(taskDeadline < minDeadline)
+				minDeadline = taskDeadline;
+		}
+		
+		return minDeadline;
+	}
+	
+	private int minimum(int x1, int x2, int x3)
+	{
+		int arr[] = {x1, x2, x3};
+		
+		int min = arr[0];
+		
+		for(int i = 0; i < arr.length; i++)
+		{
+			if(arr[i] < min)
+				min = arr[i];
+		}
+		
+		return min;
 	}
 }
 

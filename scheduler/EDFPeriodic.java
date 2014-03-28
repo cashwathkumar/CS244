@@ -135,7 +135,7 @@ public class EDFPeriodic {
 			/* current task not preempted*/
 			if(currentTask.getDeadline() <= getMinDeadline(currentTask.getDeadline()))
 			{
-				readyQueue.add(currentTask);
+				readyQueue.addFirst(currentTask);
 			}
 			else
 			{

@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -13,7 +12,7 @@ public class Scheduler {
 
 	private static LinkedList<Task> inputTaskSet = new LinkedList<Task>();
 	
-	private static String inputFile = "TestSet4EDFP.txt";
+	private static String inputFile = "TestSet2LDF.txt";
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -127,13 +126,11 @@ public class Scheduler {
 	private static int calculateHyperPeriod()
 	{
 		int[] periods = new int[inputTaskSet.size()];
-		int product = 1;
 		
 		/*read all the periods*/
 		for(int i = 0; i < inputTaskSet.size(); i++)
 		{
 			periods[i] = inputTaskSet.get(i).getPeriod();
-			product *= periods[i];
 		}
 		
 		return lcmofarray(periods, 0, periods.length);
@@ -167,11 +164,11 @@ public class Scheduler {
 		
 		//runEDFPeriodic();
 		
-		runRMPeriodic();
+		//runRMPeriodic();
 		
 		//runEDFAperiodic();
 		
-		//runLDFAperiodic();
+		runLDFAperiodic();
 	}
 	
 	private static void runEDFPeriodic()
